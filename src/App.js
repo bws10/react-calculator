@@ -3,31 +3,6 @@ import React, { useReducer, useEffect } from "react";
 import DigitButton from "./components/DigitButton";
 import OppButton from "./components/OppButton";
 
-const keys = {
-  1: "one",
-  2: "two",
-  3: "three",
-  4: "four",
-  5: "five",
-  6: "six",
-  7: "seven",
-  8: "eight",
-  9: "nine",
-  0: "zero",
-  "+": "add",
-  "-": "subtract",
-  "/": "divide",
-  "*": "multiply",
-  "(": "open",
-  ")": "close",
-  "=": "equals",
-  Enter: "equals",
-  c: "clear",
-  Delete: "clear",
-  Backspace: "back",
-  x: "multiply",
-  ".": "decimal",
-};
 export const ACTIONS = {
   ADD_DIGIT: "add-digit",
   CHOOSE_OPP: "choose-opp",
@@ -35,20 +10,40 @@ export const ACTIONS = {
   DELETE: "delete",
   EVALUATE: "evaluate",
 };
-let neg = false;
-let counter = 0;
-console.log("Count = " + counter);
 
 function reducer(state, { type, payload }) {
-  counter++;
-  console.log("Count = " + counter);
-  let f = [];
-  let last = state.formula.length - 1;
-  let regEx = /[+/*-]$/;
-  let regExContainsOp = /[+/*-]/;
+  let regEx = /[+/*\-]+$/;
+  let regExContainsOp = /[+/*\-]/;
   switch (type) {
     case ACTIONS.ADD_DIGIT:
-      console.log("ADD DIGIT");
+      if (state.ans === true && payload.digit === "0") {
+        return {
+          ...state,
+          current: payload.digit,
+          formula: "",
+          ans: false,
+          neg: false,
+        };
+      }
+      if (state.ans === true && payload.digit === ".") {
+        return {
+          ...state,
+          current: "0.",
+          formula: "0.",
+          ans: false,
+          neg: false,
+        };
+      }
+      if (state.ans === true && payload.digit !== "0") {
+        return {
+          ...state,
+          current: payload.digit,
+          formula: payload.digit,
+          ans: false,
+          neg: false,
+        };
+      }
+
       if (payload.digit === "0" && state.current === "0") {
         return state;
       }
@@ -59,88 +54,160 @@ function reducer(state, { type, payload }) {
         return {
           ...state,
           current: `${state.current}${payload.digit}`,
-          formula: `${state.formula}${payload.digit}`,
+          formula: `0${payload.digit}`,
+          neg: false,
         };
       }
-      if (state.current === "0") {
+      if (state.current === "0" || regEx.test(state.formula)) {
         return {
           ...state,
           current: payload.digit,
-          formula: payload.digit,
+          formula: `${state.formula}${payload.digit}`,
+          neg: false,
         };
       }
       return {
         ...state,
         current: `${state.current}${payload.digit}`,
         formula: `${state.formula}${payload.digit}`,
+        neg: false,
       };
 
     case ACTIONS.CHOOSE_OPP:
-      console.log("CHOOSE OPP");
       var opp =
         payload.opp === "÷" ? "/" : payload.opp === "x" ? "*" : payload.opp;
-      console.log("Negative number set - " + neg);
-      if (state.formula === "") {
+
+      if (state.ans === true) {
+        return {
+          ...state,
+          current: "0",
+          formula: `${state.current}${opp}`,
+          ans: false,
+        };
+      }
+      if (state.formula === "") return state;
+      if (/[/*+]$/.test(state.formula) && state.neg === false && opp === "-") {
+        return {
+          ...state,
+
+          formula: `${state.formula}${opp}`,
+          neg: true,
+        };
+      }
+      if (regEx.test(state.formula) && state.neg === true && opp !== "-")
         return state;
+      if (regEx.test(state.formula) && state.neg === true && opp === "-") {
+        return {
+          ...state,
+
+          formula: state.formula.replace(regEx, opp),
+          neg: false,
+        };
       }
       if (regEx.test(state.formula)) {
-        if (neg === false && opp === "-") {
-          f = `${state.formula}${opp}`;
-          neg = true;
-          console.log("change Sign - Negative number set - " + neg);
-          console.log("formula = " + f);
-        } else {
-          f = state.formula.split("");
-          if (neg === true) {
-            f.pop();
-            last = f.length - 1;
-            neg = false;
-            console.log("change Sign - Negative number set - " + neg);
-            console.log("formula = " + f);
-          }
+        return {
+          ...state,
 
-          console.log("formula = " + f);
-          f[last] = opp;
-          console.log("formula = " + f);
-          f = f.join("");
-          console.log("change Opp - Negative number set - " + neg);
-          console.log("formula = " + f);
-        }
-      } else {
-        f = `${state.formula}${opp}`;
-        console.log("Set OPP");
-        console.log("formula = " + f);
+          formula: state.formula.replace(regEx, opp),
+          neg: false,
+        };
       }
-      console.log("return - formula = " + f);
+
       return {
         ...state,
 
-        formula: f,
+        formula: `${state.formula}${opp}`,
       };
     case ACTIONS.CLEAR:
-      console.log("CLEAR");
       return {
         current: "0",
         formula: "",
+        neg: false,
+        and: false,
       };
+    case ACTIONS.DELETE:
+      if (state.ans === true) {
+        return {
+          current: "0",
+          formula: "",
+          neg: false,
+          and: false,
+        };
+      }
+      if (
+        regEx.test(state.formula) &&
+        !regExContainsOp.test(state.formula.slice(0, -1))
+      ) {
+        return {
+          ...state,
+          current: state.formula.slice(0, -1),
+          formula: state.formula.slice(0, -1),
+        };
+      } else if (state.current.length === 1) {
+        return {
+          ...state,
+          current: "0",
+          formula: state.formula.slice(0, -1),
+        };
+      } else {
+        return {
+          ...state,
+          current: state.current.slice(0, -1),
+          formula: state.formula.slice(0, -1),
+        };
+      }
+    case ACTIONS.EVALUATE:
+      if (regEx.test(state.formula) || state.formula.includes("=")) {
+        return state;
+      }
+      if (regExContainsOp.test(state.formula)) {
+        let res = evaluate(state.formula);
+        if (res === "ERROR") {
+          return {
+            ...state,
+            current: "ERROR",
+          };
+        }
+        var iOfPoint = res.toString(10).indexOf(".");
+        iOfPoint >= 0 ? (iOfPoint = 8 - iOfPoint) : (iOfPoint = 8);
+        res = +res.toFixed(iOfPoint);
+
+        return {
+          current: res,
+          formula: `${state.formula}=${res}`,
+          neg: false,
+          ans: true,
+        };
+      }
+      return state;
+
     default:
       return state;
   }
 }
+const evaluate = (f) => {
+  try {
+    return eval(f);
+  } catch (err) {
+    console.log(err.message);
+    return "ERROR";
+  }
+};
+
 function App() {
   const [{ current, formula }, dispatch] = useReducer(reducer, {
     current: "0",
     formula: "",
+    neg: false,
+    ans: false,
   });
   useEffect(() => {
     function handleKeyPress(e) {
-      console.log(e.key);
-      console.log(/c/i.test(e.key));
-      if (/[0-9.()]/.test(e.key)) {
+      if (/^[0-9.]{1}$/.test(e.key)) {
         let digit = e.key;
         dispatch({ type: ACTIONS.ADD_DIGIT, payload: { digit } });
       }
-      if (/[/*-+]/.test(e.key)) {
+      if (/^[/*\-+]{1}$/.test(e.key)) {
         let opp = e.key;
         dispatch({ type: ACTIONS.CHOOSE_OPP, payload: { opp } });
       }
@@ -166,12 +233,19 @@ function App() {
       <div id="sub-display">{formula}</div>
       <div
         className="btn btn-danger"
+        id="clear"
         onClick={() => dispatch({ type: ACTIONS.CLEAR })}
       >
-        C
+        AC
       </div>
-      <DigitButton digit="(" dispatch={dispatch} />
-      <DigitButton digit=")" dispatch={dispatch} />
+      <div
+        className="btn btn-warning"
+        id="Delete"
+        onClick={() => dispatch({ type: ACTIONS.DELETE })}
+      >
+        DEL
+      </div>
+
       <OppButton opp="÷" dispatch={dispatch} />
       <DigitButton digit="7" dispatch={dispatch} />
       <DigitButton digit="8" dispatch={dispatch} />
@@ -187,7 +261,11 @@ function App() {
       <OppButton opp="+" dispatch={dispatch} />
       <DigitButton digit="0" dispatch={dispatch} />
       <DigitButton digit="." dispatch={dispatch} />
-      <div className="btn btn-info" id="equals">
+      <div
+        className="btn btn-info"
+        id="equals"
+        onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
+      >
         =
       </div>
     </div>

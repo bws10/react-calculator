@@ -11132,7 +11132,7 @@ body {
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: minmax(5rem, auto) repeat(6, auto);
+  grid-template-rows: minmax(5rem, auto) minmax(1.25rem, auto) repeat(5, auto);
   justify-content: center;
   width: 90%;
   margin-top: 2rem;
@@ -11158,13 +11158,19 @@ body {
   word-break: break-all;
 }
 #calculator #sub-display {
-  grid-column: 1/span 4;
-  text-align: right;
+  display: flex;
+  flex-direction: column;
+  grid-column: 1/-1;
+  align-items: flex-end;
   font-size: 1rem;
   max-width: 440px;
   overflow: hidden;
-  height: 20px;
   font-weight: bold;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+#calculator #clear {
+  grid-column: span 2;
 }
 #calculator #equals {
   grid-column: span 2;
