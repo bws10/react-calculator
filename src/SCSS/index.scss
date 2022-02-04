@@ -2,6 +2,11 @@ $primary: rgb(7, 142, 253);
 $info: #07fde8;
 
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
+body {
+  margin: 0;
+  background: rgba(245, 231, 231, 0.507)
+    linear-gradient(to right, $primary, $info);
+}
 #root {
   display: flex;
   justify-content: center;
@@ -10,6 +15,7 @@ $info: #07fde8;
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: minmax(5rem, auto) repeat(6, auto);
   justify-content: center;
 
   width: 90%;
@@ -22,15 +28,19 @@ $info: #07fde8;
   background: rgb(170, 212, 247);
 
   #display {
+    display: flex;
+    flex-direction: column;
     grid-column: 1 / -1;
-    text-align: right;
-    font-size: 4.5rem;
+    align-items: flex-end;
+    font-size: 3.5rem;
     max-width: 440px;
     overflow: hidden;
     border-radius: 1rem;
     border: 2px solid black;
     background: whitesmoke;
     padding-right: 0.5rem;
+    word-wrap: break-word;
+    word-break: break-all;
   }
   #sub-display {
     grid-column: 1 / span 4;
@@ -41,19 +51,13 @@ $info: #07fde8;
     height: 20px;
     font-weight: bold;
   }
-  #clear {
-    grid-column: 1 / span 1;
-  }
-  #zero {
-    grid-column: 1 / span 2;
+
+  #equals {
+    grid-column: span 2;
   }
 }
 .btn {
   font-weight: bold;
   border-radius: 100vw;
-}
-
-body {
-  margin: 0;
-  background: linear-gradient(to right, $primary, $info);
+  font-size: 1.5rem;
 }

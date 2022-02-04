@@ -1,17 +1,7 @@
 import "./index.css";
-import React, { useReducer } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faDivide,
-  faTimes,
-  faMinus,
-  faPlus,
-} from "@fortawesome/free-solid-svg-icons";
-
-const DIVIDE = "divide";
-const MULTIPLY = "multiply";
-const SUBTRACT = "subtract";
-const ADD = "add";
+import React, { useReducer, useEffect } from "react";
+import DigitButton from "./components/DigitButton";
+import OppButton from "./components/OppButton";
 
 const keys = {
   1: "one",
@@ -38,662 +28,170 @@ const keys = {
   x: "multiply",
   ".": "decimal",
 };
-
+export const ACTIONS = {
+  ADD_DIGIT: "add-digit",
+  CHOOSE_OPP: "choose-opp",
+  CLEAR: "clear",
+  DELETE: "delete",
+  EVALUATE: "evaluate",
+};
 let neg = false;
-let ans = false;
+let counter = 0;
+console.log("Count = " + counter);
 
-const CalcButton = (props) => {
-  const ID = props.id;
-  if (props.value === undefined) {
-    return (
-      <div
-        className={"btn btn-" + props.type}
-        id={props.id}
-        onClick={props.onClick}
-      >
-        <FontAwesomeIcon
-          id={props.id}
-          icon={props.icon}
-          onClick={props.onClick}
-        />
-      </div>
-    );
-  } else {
-    return (
-      <div
-        className={"btn btn-" + props.type}
-        id={props.id}
-        onClick={props.onClick}
-      >
-        {props.value}
-      </div>
-    );
-  }
-};
-
-const Display = (props) => {
-  let disp = props.display;
-  disp.length > 9
-    ? (disp = Number(disp).toExponential(4))
-    : (disp = props.display);
-  return (
-    <div id="display" onChange={props.onChange}>
-      {disp}
-    </div>
-  );
-};
-
-const SubDisplay = (props) => {
-  let disp = props.display;
-
-  return (
-    <div id="sub-display" onChange={props.onChange}>
-      {disp}
-    </div>
-  );
-};
-
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      display: "0",
-      formula: "",
-    };
-    this.handleClick = this.handleClick.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-  }
-  componentDidMount() {
-    document.addEventListener("keydown", this.handleKeyPress);
-  }
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeyPress);
-  }
-  handleKeyPress(e) {
-    let k = {
-      currentTarget: {
-        id: keys[e.key],
-      },
-    };
-
-    this.handleClick(k);
-  }
-  handleClick(e) {
-    let f = [];
-    let last = this.state.formula.length - 1;
-    let regEx = /[+/*-]$/;
-    switch (e.currentTarget.id) {
-      case "nine":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "9",
-            formula: "9",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "9",
-            formula: this.state.formula + "9",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "9",
-            formula: this.state.formula + "9",
-          });
-        }
-        break;
-      case "eight":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "8",
-            formula: "8",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "8",
-            formula: this.state.formula + "8",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "8",
-            formula: this.state.formula + "8",
-          });
-        }
-        break;
-      case "seven":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "7",
-            formula: "7",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "7",
-            formula: this.state.formula + "7",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "7",
-            formula: this.state.formula + "7",
-          });
-        }
-        break;
-      case "six":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "6",
-            formula: "6",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "6",
-            formula: this.state.formula + "6",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "6",
-            formula: this.state.formula + "6",
-          });
-        }
-        break;
-      case "five":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "5",
-            formula: "5",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "5",
-            formula: this.state.formula + "5",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "5",
-            formula: this.state.formula + "5",
-          });
-        }
-        break;
-      case "four":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "4",
-            formula: "4",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "4",
-            formula: this.state.formula + "4",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "4",
-            formula: this.state.formula + "4",
-          });
-        }
-        break;
-      case "three":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "3",
-            formula: "3",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "3",
-            formula: this.state.formula + "3",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "3",
-            formula: this.state.formula + "3",
-          });
-        }
-        break;
-      case "two":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "2",
-            formula: "2",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "2",
-            formula: this.state.formula + "2",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "2",
-            formula: this.state.formula + "2",
-          });
-        }
-        break;
-      case "one":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "1",
-            formula: "1",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          this.setState({
-            display: "1",
-            formula: this.state.formula + "1",
-          });
-        } else {
-          this.setState({
-            display: this.state.display + "1",
-            formula: this.state.formula + "1",
-          });
-        }
-        break;
-      case "zero":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "0",
-            formula: "",
-          });
-        } else if (
-          this.state.display[0] === "0" &&
-          this.state.display[1] !== "."
-        ) {
-          if (this.state.formula === "" || this.state.display === "0") {
-            this.setState({
-              display: "0",
-              formula: this.state.formula,
-            });
-          } else {
-            this.setState({
-              display: "0",
-              formula: this.state.formula + "0",
-            });
-          }
-        } else {
-          this.setState({
-            display: this.state.display + "0",
-            formula: this.state.formula + "0",
-          });
-        }
-        break;
-      case "decimal":
-        neg = false;
-        if (ans === true) {
-          ans = false;
-          this.setState({
-            display: "0.",
-            formula: "0.",
-          });
-        } else if (this.state.display === "0") {
-          ans = false;
-          this.setState({
-            display: "0.",
-            formula: this.state.formula + "0.",
-          });
-        } else if (this.state.display.includes(".")) {
-          this.setState({
-            display: this.state.display,
-            formula: this.state.formula,
-          });
-        } else {
-          this.setState({
-            display: this.state.display + ".",
-            formula: this.state.formula + ".",
-          });
-        }
-
-        break;
-      case "clear":
-        neg = false;
-        ans = false;
-        this.setState({
-          display: "0",
-          formula: "",
-        });
-        break;
-      case "add":
-        if (ans === true) {
-          this.setState({
-            formula: this.state.display,
-          });
-
-          ans = false;
-        }
-        if (this.state.formula === "") break;
-        if (regEx.test(this.state.formula)) {
-          f = this.state.formula.split("");
-          if (neg === true) {
-            f.pop();
-            last = f.length - 1;
-            neg = false;
-          }
-          f[last] = "+";
-          f = f.join("");
-        } else {
-          f = this.state.formula + "+";
-        }
-
-        this.setState({
-          display: "0",
-          formula: f,
-        });
-        break;
-      case "subtract":
-        if (ans === true) {
-          this.setState({
-            formula: this.state.display,
-          });
-
-          ans = false;
-        }
-        ans = false;
-
-        if (this.state.formula === "") break;
-        if (regEx.test(this.state.formula)) {
-          if (neg === false) {
-            f = this.state.formula + "-";
-            neg = true;
-          } else {
-            f = this.state.formula.split("");
-            if (neg === true) {
-              f.pop();
-              last = f.length - 1;
-              neg = false;
-            }
-            f[last] = "-";
-            f = f.join("");
-          }
-        } else {
-          f = this.state.formula + "-";
-        }
-        this.setState({
-          display: "0",
-          formula: f,
-        });
-        break;
-      case "multiply":
-        if (ans === true) {
-          this.setState({
-            formula: this.state.display,
-          });
-
-          ans = false;
-        }
-        ans = false;
-
-        if (this.state.formula === "") break;
-        if (regEx.test(this.state.formula)) {
-          f = this.state.formula.split("");
-          if (neg === true) {
-            f.pop();
-            last = f.length - 1;
-            neg = false;
-          }
-          f[last] = "*";
-          f = f.join("");
-        } else {
-          f = this.state.formula + "*";
-        }
-        this.setState({
-          display: "0",
-          formula: f,
-        });
-        break;
-      case "divide":
-        if (ans === true) {
-          this.setState({
-            formula: this.state.display,
-          });
-
-          ans = false;
-        }
-        ans = false;
-
-        if (this.state.formula === "") break;
-        if (regEx.test(this.state.formula)) {
-          f = this.state.formula.split("");
-          if (neg === true) {
-            f.pop();
-            last = f.length - 1;
-            neg = false;
-          }
-          f[last] = "/";
-          f = f.join("");
-        } else {
-          f = this.state.formula + "/";
-        }
-        this.setState({
-          display: "0",
-          formula: f,
-        });
-        break;
-      case "equals":
-        neg = false;
-        console.log("equals");
-        const evaluate = (f) => {
-          try {
-            return eval(f);
-          } catch (err) {
-            this.setState({
-              display: "ERROR",
-            });
-            console.log(err.message);
-          }
+function reducer(state, { type, payload }) {
+  counter++;
+  console.log("Count = " + counter);
+  let f = [];
+  let last = state.formula.length - 1;
+  let regEx = /[+/*-]$/;
+  let regExContainsOp = /[+/*-]/;
+  switch (type) {
+    case ACTIONS.ADD_DIGIT:
+      console.log("ADD DIGIT");
+      if (payload.digit === "0" && state.current === "0") {
+        return state;
+      }
+      if (payload.digit === "." && state.current.includes(".")) {
+        return state;
+      }
+      if (state.current === "0" && payload.digit === ".") {
+        return {
+          ...state,
+          current: `${state.current}${payload.digit}`,
+          formula: `${state.formula}${payload.digit}`,
         };
-        let res = evaluate(this.state.formula);
-        var iOfPoint = res.toString(10).indexOf(".");
-        iOfPoint >= 0 ? (iOfPoint = 8 - iOfPoint) : (iOfPoint = 8);
-        res = +res.toFixed(iOfPoint);
-        //console.log(res)
-        ans = true;
-        this.setState({
-          display: res,
-          formula: this.state.formula + "=" + res,
-        });
+      }
+      if (state.current === "0") {
+        return {
+          ...state,
+          current: payload.digit,
+          formula: payload.digit,
+        };
+      }
+      return {
+        ...state,
+        current: `${state.current}${payload.digit}`,
+        formula: `${state.formula}${payload.digit}`,
+      };
 
-        break;
-      case "open":
-        this.setState({
-          formula: this.state.formula + "(",
-        });
-        break;
-
-      case "close":
-        this.setState({
-          formula: this.state.formula + ")",
-        });
-        break;
-      case "back":
-        if (ans === true) {
-          this.handleKeyPress({ key: "c" });
-        }
-        if (this.state.display.length === 1) {
-          this.setState({
-            display: "0",
-            formula: this.state.formula.slice(0, -1),
-          });
+    case ACTIONS.CHOOSE_OPP:
+      console.log("CHOOSE OPP");
+      var opp =
+        payload.opp === "÷" ? "/" : payload.opp === "x" ? "*" : payload.opp;
+      console.log("Negative number set - " + neg);
+      if (state.formula === "") {
+        return state;
+      }
+      if (regEx.test(state.formula)) {
+        if (neg === false && opp === "-") {
+          f = `${state.formula}${opp}`;
+          neg = true;
+          console.log("change Sign - Negative number set - " + neg);
+          console.log("formula = " + f);
         } else {
-          this.setState({
-            display: this.state.display.slice(0, -1),
-            formula: this.state.formula.slice(0, -1),
-          });
+          f = state.formula.split("");
+          if (neg === true) {
+            f.pop();
+            last = f.length - 1;
+            neg = false;
+            console.log("change Sign - Negative number set - " + neg);
+            console.log("formula = " + f);
+          }
+
+          console.log("formula = " + f);
+          f[last] = opp;
+          console.log("formula = " + f);
+          f = f.join("");
+          console.log("change Opp - Negative number set - " + neg);
+          console.log("formula = " + f);
         }
-        break;
-      default:
-        break;
+      } else {
+        f = `${state.formula}${opp}`;
+        console.log("Set OPP");
+        console.log("formula = " + f);
+      }
+      console.log("return - formula = " + f);
+      return {
+        ...state,
+
+        formula: f,
+      };
+    case ACTIONS.CLEAR:
+      console.log("CLEAR");
+      return {
+        current: "0",
+        formula: "",
+      };
+    default:
+      return state;
+  }
+}
+function App() {
+  const [{ current, formula }, dispatch] = useReducer(reducer, {
+    current: "0",
+    formula: "",
+  });
+  useEffect(() => {
+    function handleKeyPress(e) {
+      console.log(e.key);
+      console.log(/c/i.test(e.key));
+      if (/[0-9.()]/.test(e.key)) {
+        let digit = e.key;
+        dispatch({ type: ACTIONS.ADD_DIGIT, payload: { digit } });
+      }
+      if (/[/*-+]/.test(e.key)) {
+        let opp = e.key;
+        dispatch({ type: ACTIONS.CHOOSE_OPP, payload: { opp } });
+      }
+      if (e.key === "c" || e.key === "C" || e.key === "Delete") {
+        dispatch({ type: ACTIONS.CLEAR });
+      }
+      if (e.key === "Enter" || e.key === "=") {
+        dispatch({ type: ACTIONS.EVALUATE });
+      }
+      if (e.key === "Backspace") {
+        dispatch({ type: ACTIONS.DELETE });
+      }
     }
-    //console.log(e.target.id)
-  }
-  render() {
-    return (
-      <div id="calculator">
-        <Display display={this.state.display} onChange={this.handleChange} />
-        <SubDisplay display={this.state.formula} onChange={this.handleChange} />
-        <CalcButton
-          type="danger"
-          id="clear"
-          value="C"
-          onClick={this.handleClick}
-        />
+    document.addEventListener("keydown", handleKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
 
-        <CalcButton
-          type="info"
-          id="open"
-          value="("
-          onClick={this.handleClick}
-        />
-
-        <CalcButton
-          type="info"
-          id="close"
-          value=")"
-          onClick={this.handleClick}
-        />
-
-        <CalcButton
-          type="info"
-          id={DIVIDE}
-          icon={faDivide}
-          onClick={this.handleClick}
-        />
-
-        <CalcButton
-          type="primary"
-          id="seven"
-          value="7"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="eight"
-          value="8"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="nine"
-          value="9"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="info"
-          id={MULTIPLY}
-          icon={faTimes}
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="four"
-          value="4"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="five"
-          value="5"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="six"
-          value="6"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="info"
-          id={SUBTRACT}
-          icon={faMinus}
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="one"
-          value="1"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="two"
-          value="2"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="three"
-          value="3"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="info"
-          id={ADD}
-          icon={faPlus}
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="zero"
-          value="0"
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="primary"
-          id="decimal"
-          value="."
-          onClick={this.handleClick}
-        />
-        <CalcButton
-          type="info"
-          id="equals"
-          value="="
-          onClick={this.handleClick}
-        />
+  return (
+    <div id="calculator">
+      <div id="display">{current}</div>
+      <div id="sub-display">{formula}</div>
+      <div
+        className="btn btn-danger"
+        onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+      >
+        C
       </div>
-    );
-  }
+      <DigitButton digit="(" dispatch={dispatch} />
+      <DigitButton digit=")" dispatch={dispatch} />
+      <OppButton opp="÷" dispatch={dispatch} />
+      <DigitButton digit="7" dispatch={dispatch} />
+      <DigitButton digit="8" dispatch={dispatch} />
+      <DigitButton digit="9" dispatch={dispatch} />
+      <OppButton opp="x" dispatch={dispatch} />
+      <DigitButton digit="4" dispatch={dispatch} />
+      <DigitButton digit="5" dispatch={dispatch} />
+      <DigitButton digit="6" dispatch={dispatch} />
+      <OppButton opp="-" dispatch={dispatch} />
+      <DigitButton digit="1" dispatch={dispatch} />
+      <DigitButton digit="2" dispatch={dispatch} />
+      <DigitButton digit="3" dispatch={dispatch} />
+      <OppButton opp="+" dispatch={dispatch} />
+      <DigitButton digit="0" dispatch={dispatch} />
+      <DigitButton digit="." dispatch={dispatch} />
+      <div className="btn btn-info" id="equals">
+        =
+      </div>
+    </div>
+  );
 }
 
 export default App;
