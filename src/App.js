@@ -94,9 +94,8 @@ function reducer(state, { type, payload }) {
           neg: true,
         };
       }
-      if (regEx.test(state.formula) && state.neg === true && opp !== "-")
-        return state;
-      if (regEx.test(state.formula) && state.neg === true && opp === "-") {
+
+      if (regEx.test(state.formula) && state.neg === true) {
         return {
           ...state,
 
@@ -143,6 +142,17 @@ function reducer(state, { type, payload }) {
           current: state.formula.slice(0, -1),
           formula: state.formula.slice(0, -1),
         };
+      } else if (
+        regEx.test(state.formula) &&
+        regExContainsOp.test(state.formula.slice(0, -1))
+      ) {
+        let result = state.formula.slice(0, -1).match(/[0-9]+$/);
+        console.log(result[0]);
+        return {
+          ...state,
+          current: result[0],
+          formula: state.formula.slice(0, -1),
+        };
       } else if (state.current.length === 1) {
         return {
           ...state,
@@ -173,7 +183,7 @@ function reducer(state, { type, payload }) {
         res = +res.toFixed(iOfPoint);
 
         return {
-          current: res,
+          current: res.toString(10),
           formula: `${state.formula}=${res}`,
           neg: false,
           ans: true,
@@ -192,6 +202,17 @@ const evaluate = (f) => {
     console.log(err.message);
     return "ERROR";
   }
+};
+
+const INTEGER_FORMAT = new Intl.NumberFormat("en-uk", {
+  maximumFractionDigits: 0,
+});
+const formatNumber = (num) => {
+  if (num === "" || num === null || num === undefined) return;
+  const [int, dec] = num.split(".");
+  if (dec === null || dec === undefined || dec === "")
+    return INTEGER_FORMAT.format(int);
+  return `${INTEGER_FORMAT.format(int)}.${dec}`;
 };
 
 function App() {
@@ -229,7 +250,7 @@ function App() {
 
   return (
     <div id="calculator">
-      <div id="display">{current}</div>
+      <div id="display">{formatNumber(current)}</div>
       <div id="sub-display">{formula}</div>
       <div
         className="btn btn-danger"

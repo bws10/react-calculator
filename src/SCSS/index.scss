@@ -1,6 +1,6 @@
 $primary: rgb(7, 142, 253);
 $info: #07fde8;
-
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
 body {
   margin: 0;
@@ -12,10 +12,11 @@ body {
   justify-content: center;
 }
 #calculator {
+  font-family: "Share Tech Mono", monospace;
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: minmax(5rem, auto) minmax(1.25rem, auto) repeat(5, auto);
+  grid-template-rows: minmax(5rem, auto) minmax(1.5rem, auto) repeat(5, auto);
   justify-content: center;
 
   width: 90%;
@@ -50,7 +51,7 @@ body {
     font-size: 1rem;
     max-width: 440px;
     overflow: hidden;
-
+    color: rgba(0, 0, 0, 0.527);
     font-weight: bold;
     word-wrap: break-word;
     word-break: break-all;
